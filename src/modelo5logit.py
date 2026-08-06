@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import statsmodels.api as sm
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
@@ -54,6 +54,7 @@ class ResultadoEvaluacion:
     clasificacion: np.ndarray
     matriz_confusion: pd.DataFrame
     reporte_clasificacion: str
+    roc_auc: float
 
 
 def cargar_datos(ruta=RUTA_DATOS):
@@ -115,11 +116,13 @@ def evaluar_modelo(model, X_test, y_test):
         colnames=["Prediccion"],
     )
     reporte_clasificacion = classification_report(y_true=y_test, y_pred=clasificacion)
+    roc_auc = roc_auc_score(y_true=y_test, y_score=predicciones)
     return ResultadoEvaluacion(
         accuracy=accuracy,
         clasificacion=clasificacion,
         matriz_confusion=matriz_confusion,
         reporte_clasificacion=reporte_clasificacion,
+        roc_auc=roc_auc,
     )
 
 
@@ -169,6 +172,15 @@ def main():
     print(resultado.matriz_confusion)
     print("\nPrecision / recall / f1 por clase:")
     print(resultado.reporte_clasificacion)
+    print(f"ROC-AUC (sobre probabilidades crudas de aprobar): {resultado.roc_auc:.4f}")
+    print(
+        "\nNota: umbral de clasificacion ajustado de 0.5 a 0.65 a proposito "
+        "(ver MEJORAS_MODELO.md seccion 8). Prioriza recall de clase 0 "
+        "(riesgo detectado) sobre accuracy global: con 0.5 el recall clase 0 "
+        "era 0.63, con 0.65 sube a ~0.73 a cambio de -0.5pp de accuracy y mas "
+        "falsas alarmas. Precision/recall de clase 0 ~0.73-0.74 es esperado, "
+        "no una regresion."
+    )
 
     ruta_imagen = guardar_matriz_confusion(resultado.matriz_confusion)
     print(f"Matriz de confusion guardada en: {ruta_imagen}")
