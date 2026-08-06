@@ -16,31 +16,17 @@ análisis de precision/recall más reciente.
 
 ---
 
-<<<<<<< HEAD
 **Fix:** `eliminar_categoria_referencia()` dropea la primera columna de cada
 grupo (`GRUPOS_DUMMIES_COLINEALES = [("dep_",), ("tipo_ingreso_",)]`), que
 pasa a ser la categoría de referencia implícita (`dep_tec_cn`,
 `tipo_ingreso_regular`). Detalle completo en [CHANGES_LOGIT.md](CHANGES_LOGIT.md).
-=======
-### 2. Inversión de la función sigmoide
-* **Problema/Lógica:** `estado_asignatura = 1` indica aprobación (ausencia de riesgo). Dado que `sigmoid(z)` calcula la probabilidad de aprobar ($P(	ext{aprobar})$), el riesgo real corresponde a $1 - 	ext{sigmoid}(z)$. 
-* **Solución:** Nunca se utiliza el valor crudo de $z$ (no acotado, en log-odds) ni la sigmoide sin invertir. El detalle técnico está en `ECUACION_MD.md`.
->>>>>>> 808b2bf4416f60e2bf66700055974186c4dd5f01
 
 ---
 
-<<<<<<< HEAD
 `estado_asignatura=1` significa **aprobó**, no riesgo. `sigmoid(z)` da
 `P(aprobar)`, así que el riesgo real es `1 - sigmoid(z)`, nunca `z` crudo
 (no acotado, log-odds) ni la sigmoide sin invertir. Detalle en
 [ECUACION_MD.md](ECUACION_MD.md).
-=======
-### 3. Escalas y centrado de variables
-* **Problema en `ano_carrera_actual`:** Anteriormente llamado `Año_Ingreso`, traía valores absolutos (2017–2026) sin centrar, lo que obligaba a la constante del Logit a absorber un offset gigantesco, generando un artefacto visual (no un error de ajuste).
-    * *Solución:* La función `centrar_ano_ingreso()` resta la media antes de aplicar `sm.add_constant`.
-* **Problema en `promedio_sct`:** Se entrena en una escala de 0 a 100, pero la fuente de producción (Dagster, `indicador_sara.csv`) entrega una fracción de 0 a 1.
-    * *Solución temporal:* Escalar por 100 en la ecuación de producción (pendiente corregir el origen en el pipeline).
->>>>>>> 808b2bf4416f60e2bf66700055974186c4dd5f01
 
 ---
 
@@ -93,7 +79,6 @@ Se realizó un barrido de umbrales (*thresholds*) sobre la probabilidad de aprob
 ### 8. Ajuste de umbral (*Threshold*: 0.5 $	o$ 0.65)
 Se implementó un umbral de **0.65** (equivalente a un corte de riesgo de **0.35** sobre la probabilidad de reprobar):
 
-<<<<<<< HEAD
 - `src/modelo5logit.py` (`evaluar_modelo`): `clasificacion = np.where(predicciones < 0.65, 0, 1)`.
 - `src/main.py:78` (API local `/predict`): `prediccion = 1 if riesgo_reprobar >= 0.35 else 0` —
   0.35 sobre `riesgo_reprobar` (`1 - prob_aprobar`) es el mismo corte que 0.65
@@ -102,11 +87,6 @@ Se implementó un umbral de **0.65** (equivalente a un corte de riesgo de **0.35
   continuo, sin binarizar — no hay threshold ahí que propagar. Si Dagster
   aplica su propio corte río abajo para generar una alerta, es
   responsabilidad de esa parte del pipeline (fuera de este repo).
-=======
-* `src/modelo5logit.py` (`evaluar_modelo`): `clasificacion = np.where(predicciones < 0.65, 0, 1)`
-* `src/main.py:78` (API local `/predict`): `prediccion = 1 if riesgo_reprobar >= 0.35 else 0`
-* *Nota:* `ecuacionlogit.md` (Dagster) permanece intacto, ya que retorna el valor continuo `p_riesgo_SARA` sin binarizar. Si Dagster aplica un corte propio río abajo, es responsabilidad exclusiva de esa capa del pipeline.
->>>>>>> 808b2bf4416f60e2bf66700055974186c4dd5f01
 
 #### Comparativa de desempeño en el conjunto de prueba (6.524 filas):
 
