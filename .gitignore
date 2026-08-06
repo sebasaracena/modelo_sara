@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+.pytest_cache/
+confusion_matrix_modelo5.png
+coeficientes_modelo5.csv
+confusion_matrix_modelo5logit.png
+coeficientes_modelo5logit.csv
+.claude
+.graphify
+graphify-out
+.superpowers
+docs
+openspec
+assets
+
+

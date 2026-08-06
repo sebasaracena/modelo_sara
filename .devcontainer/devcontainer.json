@@ -1,0 +1,26 @@
+{
+  "name": "coeficiente_sara",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+  "runArgs": [
+    "--name",
+    "coeficiente_sara_devcontainer"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/node:2.1.0": {
+      "version": "lts"
+    }
+  },
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && npm -g install graphifyy && npm install -g @fission-ai/openspec@latest && pip install semgrep && claude plugin marketplace add JuliusBrussee/caveman && claude plugin install caveman@caveman && claude plugin marketplace add DietrichGebert/ponytail && claude plugin install ponytail@ponytail && claude plugin marketplace add obra/superpowers-marketplace && claude plugin install superpowers@superpowers-marketplace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}
