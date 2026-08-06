@@ -1,9 +1,11 @@
 # Historial de mejoras al modelo de riesgo SARA
 
 Bitácora cronológica de qué se cambió en el modelo Logit (`src/modelo5logit.py`)
-y por qué. Complementa `CHANGES_LOGIT.md` y `ECUACION_MD.md` (detalle técnico
-de los dos primeros fixes) — acá está la secuencia completa, incluida la
-migración de fuente de datos y el análisis de precision/recall más reciente.
+y por qué. Complementa [CHANGES_LOGIT.md](CHANGES_LOGIT.md) y
+[ECUACION_MD.md](ECUACION_MD.md) (detalle técnico de los dos primeros fixes) y
+[ecuacionlogit.md](ecuacionlogit.md) (fórmula vigente que consume Dagster) —
+acá está la secuencia completa, incluida la migración de fuente de datos y el
+análisis de precision/recall más reciente.
 
 ## 1. Trampa de variable dummy (`dep_*`, `tipo_ingreso_*`)
 
@@ -19,14 +21,14 @@ completo (dummy variable trap).
 **Fix:** `eliminar_categoria_referencia()` dropea la primera columna de cada
 grupo (`GRUPOS_DUMMIES_COLINEALES = [("dep_",), ("tipo_ingreso_",)]`), que
 pasa a ser la categoría de referencia implícita (`dep_tec_cn`,
-`tipo_ingreso_regular`). Detalle completo en `CHANGES_LOGIT.md`.
+`tipo_ingreso_regular`). Detalle completo en [CHANGES_LOGIT.md](CHANGES_LOGIT.md).
 
 ## 2. Sigmoide invertido
 
 `estado_asignatura=1` significa **aprobó**, no riesgo. `sigmoid(z)` da
 `P(aprobar)`, así que el riesgo real es `1 - sigmoid(z)`, nunca `z` crudo
 (no acotado, log-odds) ni la sigmoide sin invertir. Detalle en
-`ECUACION_MD.md`.
+[ECUACION_MD.md](ECUACION_MD.md).
 
 ## 3. Escalas y centrado
 
@@ -120,7 +122,7 @@ Se aplicó **0.65** (recall ~0.72-0.75 sin hundir precision):
 - `src/main.py:78` (API local `/predict`): `prediccion = 1 if riesgo_reprobar >= 0.35 else 0` —
   0.35 sobre `riesgo_reprobar` (`1 - prob_aprobar`) es el mismo corte que 0.65
   sobre `prob_aprobar`, visto desde el otro lado de la probabilidad.
-- `ecuacionlogit.md` (Dagster) **no se tocó**: devuelve `p_riesgo_SARA`
+- [`ecuacionlogit.md`](ecuacionlogit.md) (Dagster) **no se tocó**: devuelve `p_riesgo_SARA`
   continuo, sin binarizar — no hay threshold ahí que propagar. Si Dagster
   aplica su propio corte río abajo para generar una alerta, es
   responsabilidad de esa parte del pipeline (fuera de este repo).
